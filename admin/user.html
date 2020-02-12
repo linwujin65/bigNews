@@ -77,7 +77,7 @@
                 type: 'get',
                 url: BigNew.user_detail,
                 success: function (backData) {
-                    console.log(backData);
+                    // console.log(backData);
                     if (backData.code == 200) {
                         //将请求回来的数据显示到对应的标签
 
@@ -131,7 +131,7 @@
                                 //     Authorization: window.localStorage.getItem('token')
                                 // },
                                 success: function (backData) {
-                                    console.log(backData);
+                                    // console.log(backData);
                                     if (backData.code == 200) {
                                         parent.$(".user_info>span>i").text(backData.data.nickname);
                                         parent.$(".user_info>img").attr("src", backData.data.userPic);
