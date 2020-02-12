@@ -68,6 +68,88 @@
             </form>
         </div>
     </div>
+    <script src="./libs/http.js"></script>
+    <script>
+        //入口函数
+        $(function () {
+            //一进入页面就发送ajax请求获取管理员(用户)详细信息，将数据显示到对应的标签
+            $.ajax({
+                type: 'get',
+                url: BigNew.user_detail,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        //将请求回来的数据显示到对应的标签
+
+                        // $('input.username').val(backData.data.username);
+                        // $('input.nickname').val(backData.data.nickname);
+                        // $('input.email').val(backData.data.email);
+                        // $('input.password').val(backData.data.password);
+
+                        //for in 循环 将对应的数据显示到对应的标签
+                        for (let key in backData.data) {
+                            $('input.' + key).val(backData.data[key]);
+                        }
+
+                        $('img.user_pic').attr('src', backData.data.userPic);
+                    }
+                }
+            })
+
+            // 信息修改，图片预览
+            $('#exampleInputFile').on('change', function () {
+                let file1 = this.files[0];
+                let url = URL.createObjectURL(file1);
+                $('img.user_pic').attr('src', url);
+            })
+
+            //创建一个formData对象 
+            $('.btn-edit').on('click', function (e) {
+                e.preventDefault();
+                let form1 = document.querySelector('form');
+                let fd = new FormData(form1);
+
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.user_edit,
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            alert('更新成功！');
+                            //刷新当前整个页面，而非是iframe页面
+                            // parent.window.location.reload();
+
+
+                            //直接修改信息
+                            $.ajax({
+                                type: 'get',
+                                // url: 'http://localhost:8080/api/v1/admin/user/info',
+                                url: BigNew.user_info,
+                                // headers:{
+                                //     Authorization: window.localStorage.getItem('token')
+                                // },
+                                success: function (backData) {
+                                    console.log(backData);
+                                    if (backData.code == 200) {
+                                        parent.$(".user_info>span>i").text(backData.data.nickname);
+                                        parent.$(".user_info>img").attr("src", backData.data.userPic);
+                                        parent.$(".user_center_link>img").attr("src", backData.data.userPic);
+                                    }
+
+                                }
+                            })
+                        }
+
+
+                    }
+                })
+            })
+
+
+        })
+    </script>
 </body>
 
 </html>
