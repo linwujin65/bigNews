@@ -14,6 +14,12 @@
     <!-- 导入bootstrap的js文件 -->
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
 </head>
+<style>
+    iframe {
+        width: 100%;
+        height: 100%;
+    }
+</style>
 
 <body>
     <div class="sider">
@@ -25,39 +31,70 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
-                        class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
-            <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
-                        class="iconfont icon-arrowdownl"></b></a></div>
+            <div class="level01 active">
+                <a href="./main_count.html" target="myIframe">
+                    <i class="iconfont icon-yidiandiantubiao04"></i>
+                    <span>首页</span>
+                </a>
+            </div>
+            <div class="level01"><a href="#">
+                    <i class="iconfont icon-icon-article"></i>
+                    <span>文章管理</span>
+                    <b class="iconfont icon-arrowdownl"></b>
+                </a>
+            </div>
             <ul class="level02">
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
+                <li>
+                    <a href="./article_list.html" target="myIframe">
+                        <i class="iconfont icon-previewright"></i>
+                        <span>文章列表</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./article_release.html" target="myIframe">
+                        <i class="iconfont icon-previewright"></i>
+                        <span>发表文章</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./article_category.html" target="myIframe">
+                        <i class="iconfont icon-previewright"></i>
+                        <span>文章类别管理</span>
+                    </a>
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
-                        class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
-                        class="iconfont icon-user"></i><span>个人中心</span></a></div>
+            <div class="level01">
+                <a href="./comment_list.html" target="myIframe">
+                    <i class="iconfont icon-comment"></i>
+                    <span>评论管理</span>
+                </a>
+            </div>
+            <div class="level01" id="user">
+                <a href="./user.html" target="myIframe">
+                    <i class="iconfont icon-user"></i>
+                    <span>个人中心</span>
+                </a>
+            </div>
         </div>
         <!-- 顶部栏 -->
         <div class="header_bar">
             <div class="user_center_link">
-                <a href="./user.html" target="main_frame">个人中心</a>
+                <a href="./user.html" target="myIframe">个人中心</a>
                 <img src="images/2.jpg" alt="person">
                 <a href="javascript:void(0)" class="logout"><i class="iconfont icon-tuichu"></i> 退出</a>
             </div>
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
+            <iframe src="./main_count.html" name="myIframe" frameborder="0"></iframe>
         </div>
     </div>
 
     <script src="./libs/http.js"></script>
     <script>
         $(function () {
+            
             $.ajax({
                 type: 'get',
                 // url: 'http://localhost:8080/api/v1/admin/user/info',
@@ -72,19 +109,49 @@
                         $(".user_info>img").attr("src", backData.data.userPic);
                         $(".user_center_link>img").attr("src", backData.data.userPic);
                     }
-                    
+
                 }
             })
 
-            // 退出
-            $('.logout').on('click',function(e){
+            //原生js发送ajax请求访问个人信息,把token带过去.
+            // var xhr = new XMLHttpRequest();
+            // xhr.open('get','http://localhost:8080/api/v1/admin/user/info');
+            // //设置一个请求头
+            // xhr.setRequestHeader('Authorization',window.localStorage.getItem('token'));
+            // xhr.onload = function(){
+            //     console.log(xhr.response);
+            // }
+            // xhr.send();
+
+
+            // 登出账号
+            $('.logout').on('click', function (e) {
                 //阻止a标签的默认跳转行为
                 e.preventDefault();
-                if(confirm('你真的要退出吗？')){
+                if (confirm('你真的要退出吗？')) {
                     localStorage.removeItem('token');
-                window.location.href = './login.html';
+                    window.location.href = './login.html';
                 }
-               
+
+            })
+
+            //给左侧导航栏设置点击事件
+            $('.menu>div.level01').on('click',function(){
+                //给当前点击的div添加active类，其他兄弟移出active类
+                $(this).addClass('active').siblings('div').removeClass('active');
+                //
+                if($(this).index() == 1) {
+                    //让ul隐藏时显示，显示时隐藏。 
+                    $('ul.level02').slideToggle();
+                    //给小三角设置 rotate0类 跟随ul进行切换
+                    $(this).find('b').toggleClass('rotate0');
+                    //设置默认选中的第一个li的点击事件 用触发器来触发
+                    $('ul.level02>li:eq(0)').trigger('click');
+                }
+            })
+                //给当前点击的li设置active类，其他兄弟移出active类
+            $('ul.level02>li').on('click',function() {
+                $(this).addClass('active').siblings('li').removeClass('active');
             })
         })
     </script>
