@@ -72,6 +72,69 @@
             </div>
         </div>
     </div>
+
+    <!-- 文章类别模板 -->
+    <script id="category-temp" type="text/html">
+        <option value="">所有分类</option>
+        {{each data x}}
+        <option value="{{x.id}}">{{x.name}}</option>
+        {{/each}}
+    </script>
+
+    <!-- 文章列表模板 -->
+    <script id="arti_list" type="text/html">
+    {{each data.data x}}
+    <tr>
+        <td>{{x.title}}</td>
+        <td>{{x.author}}</td>
+        <td>{{x.category}}</td>
+        <td class="text-center">{{x.date}}</td>
+        <td class="text-center">{{x.state}}</td>
+        <td class="text-center">
+            <a href="article_edit.html?id={{x.id}}" class="btn btn-default btn-xs">编辑</a>
+            <a href="javascript:void(0);" data-id="{{x.id}}" class="btn btn-danger btn-xs delete">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+</script>
+
+    <script src="./libs/http.js"></script>
+    <script>
+        $(function () {
+            //发送ajax请求获取所有的文章列表 显示到下拉菜单中
+            // 进入页面，发送ajax请求，获取所有文章类别
+            $.ajax({
+                type: 'get',
+                url: BigNew.category_list,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        let resHtml = template('category-temp', backData);
+                        $('#selCategory').html(resHtml);
+                    }
+                }
+            })
+
+            // 进入页面，发送ajax请求，获取文章列表，显示到页面
+            $.ajax({
+                type: 'get',
+                url: BigNew.article_query,
+                data: {
+                    type: $('#selCategory').val().trim(), //获取文章类别
+                    state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
+                    page: 1, //当前的页数
+                    perpage: 6 //一页显示多少条
+                },
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        let resHtml = template('arti_list', backData);
+                        $('tbody').html(resHtml);
+                    }
+                }
+            })
+        })
+    </script>
 </body>
 
 </html>
