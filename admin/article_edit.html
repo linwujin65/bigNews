@@ -67,6 +67,22 @@
             </form>
         </div>
     </div>
+
+    <script src="./libs/http.js"></script>
+    <script>
+        $(function(){
+            //获取id 从ariticle_list 页面传递过来的文章id
+            let id = window.location.href.split('=')[1];
+            console.log(id);
+            $.ajax({
+            type: 'get',
+            url: BigNew.category_list,
+            success: function(backData){
+            
+            }
+            })
+        })
+    </script>
 </body>
 
 </html>

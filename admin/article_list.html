@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="./css/iconfont.css">
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <!-- 分页插件 -->
+    <script src="./libs/jquery.twbsPagination.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -68,7 +71,10 @@
                     </tr>
                 </tbody>
             </table>
+            <!-- 分页插件的结构 -->
             <div class="row text-center">
+                <ul id="pagination" class="pagination-sm"></ul>
+                <p>没有数据！</p>
             </div>
         </div>
     </div>
@@ -107,33 +113,210 @@
                 type: 'get',
                 url: BigNew.category_list,
                 success: function (backData) {
-                    console.log(backData);
+                    // console.log(backData);
                     if (backData.code == 200) {
                         let resHtml = template('category-temp', backData);
                         $('#selCategory').html(resHtml);
+
                     }
                 }
             })
 
+            // 声明一个变量来保存当前点击的页码
+            let myPage = 1;
+            getData();
             // 进入页面，发送ajax请求，获取文章列表，显示到页面
-            $.ajax({
-                type: 'get',
-                url: BigNew.article_query,
-                data: {
-                    type: $('#selCategory').val().trim(), //获取文章类别
-                    state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
-                    page: 1, //当前的页数
-                    perpage: 6 //一页显示多少条
-                },
-                success: function (backData) {
-                    console.log(backData);
-                    if (backData.code == 200) {
-                        let resHtml = template('arti_list', backData);
-                        $('tbody').html(resHtml);
+            function getData(myPage, callBack) {
+                $.ajax({
+                    type: 'get',
+                    url: BigNew.article_query,
+                    data: {
+                        type: $('#selCategory').val().trim(), //获取文章类别
+                        state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
+                        page: myPage, //当前的页数
+                        perpage: 3 //一页显示多少条
+                    },
+                    success: function (backData) {
+                        // console.log(backData);
+                        if (backData.code == 200) {
+                            let resHtml = template('arti_list', backData);
+                            $('tbody').html(resHtml);
+                            //传入一个回到函数 额外做的事情
+                            if (callBack != null && backData.data.totalPage != 0) {
+                                callBack(backData);
+                                $('#pagination').show();
+                                $('#pagination').next().hide();
+                            }
+                            //判断当前页码的数据是否是最后一条
+                            // else if (backData.data.totalPage == myPage - 1 && backData.data.totalPage == 0) {
+                            //     myPage -= 1;
+                            //     // getComData(myPage, function () {
+                            //     //     //调用changeTotalPages 这个方法 根据新的总页数 重新生成分页结构. 
+                            //     //     $('#pagination').twbsPagination('changeTotalPages',
+                            //     //         backData.data.totalPage, myPage);
+                            //     // });
+                            //     $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+
+                            // }
+                            //判断当前页码是否还有数据
+                            else if (backData.data.totalPage == 0) {
+                                //没有数据
+                                $('#pagination').hide();
+                                $('#pagination').next().show();
+                            }
+                        }
                     }
+                })
+            }
+
+            // 进入页面，发送ajax请求，获取文章列表，显示到页面
+            getData(1, function (backData) {
+                //分页插件的代码
+                $('#pagination').twbsPagination({
+                    totalPages: backData.data.totalPage, //总的页数
+                    visiblePages: 6, //可见的页数
+                    first: '首页',
+                    prev: '上一页',
+                    next: '下一页',
+                    last: '尾页',
+                    onPageClick: function (event, page) {
+                        // console.log(event); 事件
+                        // console.log(page); 当前点击的页码
+                        myPage = page; //把当前点击的这一个页码给mypage赋值. 
+                        //继续发送ajax请求，传入当前点击的页码
+                        getData(page, null);
+
+                    }
+                });
+            })
+
+
+            // $.ajax({
+            //     type: 'get',
+            //     url: BigNew.article_query,
+            //     data: {
+            //         type: $('#selCategory').val().trim(), //获取文章类别
+            //         state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
+            //         page: 1, //当前的页数
+            //         perpage: 6 //一页显示多少条
+            //     },
+            //     success: function (backData) {
+            //         console.log(backData);
+            //         if (backData.code == 200) {
+            //             let resHtml = template('arti_list', backData);
+            //             $('tbody').html(resHtml);
+
+            //             //分页插件的代码
+            //             $('#pagination').twbsPagination({
+            //                 totalPages: backData.data.totalPage, //总的页数
+            //                 visiblePages: 6, //可见的页数
+            //                 first: '首页',
+            //                 prev: '上一页',
+            //                 next: '下一页',
+            //                 last: '尾页',
+            //                 onPageClick: function (event, page) {
+            //                     // console.log(event); 事件
+            //                     // console.log(page); 当前点击的页码
+            //                     //继续发送ajax请求，传入当前点击的页码
+            //                     $.ajax({
+            //                         type: 'get',
+            //                         url: BigNew.article_query,
+            //                         data: {
+            //                             type: $('#selCategory').val().trim(), //获取文章类别
+            //                             state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
+            //                             page: page, //当前的页数
+            //                             perpage: 6 //一页显示多少条
+            //                         },
+            //                         success: function (backData) {
+            //                             console.log(backData);
+            //                             if (backData.code == 200) {
+            //                                 let resHtml = template('arti_list', backData);
+            //                                 $('tbody').html(resHtml);
+
+
+            //                             }
+            //                         }
+            //                     })
+            //                 }
+            //             });
+            //         }
+            //     }
+            // })
+
+
+            //筛选 给筛选按钮设置点击事件,获取满足条件的文章们
+            $('#btnSearch').on('click', function (e) {
+                //阻止form表单刷新
+                e.preventDefault();
+
+                getData(1, function (backData) {
+                    //重新生成分页结构
+                    $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, 1);
+
+                })
+
+
+                // $.ajax({
+                //     type: 'get',
+                //     url: BigNew.article_query,
+                //     data: {
+                //         type: $('#selCategory').val().trim(), //获取文章类别
+                //         state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
+                //         page: 1, //当前的页数
+                //         perpage: 6 //一页显示多少条
+                //     },
+                //     success: function (backData) {
+                //         console.log(backData);
+                //         if (backData.code == 200) {
+                //             let resHtml = template('arti_list', backData);
+                //             $('tbody').html(resHtml);
+
+                //             //重新生成分页结构
+                //             $('#pagination').twbsPagination('changeTotalPages',backData.data.totalPage,1);
+
+                //         }
+                //     }
+                // })
+
+
+
+            })
+
+            //删除 
+            //给删除按钮通过委托注册点击事件 通过自定义属性data-id获取id
+            $('tbody').on('click', '.delete', function () {
+                if (confirm('你真的要删除吗?')) {
+                    let article_id = $(this).attr('data-id');
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.article_delete,
+                        data: {
+                            id: article_id
+                        },
+                        success: function (backData) {
+                            // console.log(backData);
+                            if (backData.code == 204) {
+                                //删除之后重新加载数据
+                                getData(myPage, function (backData) {
+                                    //重新生成删除之后的数据结构
+                                    if(backData.data.totalPage == myPage || myPage == 1) {
+                                        $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+                                    }
+                                    //判断当前页码的数据是否是最后一条
+                                    else{
+                                        $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage-1);
+                                    }
+
+                                });
+                            }
+                        }
+                    })
                 }
             })
+
+            
         })
+
     </script>
 </body>
 
