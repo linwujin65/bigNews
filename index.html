@@ -227,6 +227,150 @@
     <script src="./js/template-web.js"></script>
     <!-- 引入jq文件 -->
     <script src="./js/jquery-1.12.4.min.js"></script>
+
+    <!-- 最新资讯 模板 -->
+    <script id="latest_temp" type="text/html">
+        {{each data x}}
+        <div class="common_news_list">
+            <a href="./article.html?id={{x.id}}" class="list_pic"><img src="{{x.cover}}" alt=""></a>
+            <h4><a href="./article.html?id={{x.id}}">{{x.title}}</a></h4>
+            <!-- @符号表示原样显示出来 x.intro这个只会解析出文本 加了@符号会把标签一起解析出来-->
+            <p>{{@ x.intro}}
+            </p>
+            <div class="new_info">
+                <span>标签：{{x.category}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读(
+                    {{x.read}}
+                    )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{x.comments}} )</span>
+                <b>发布于 {{x.date}}</b>
+            </div>
+        </div>
+        {{/each}}
+        
+    </script>
+
+    <!-- 最新资讯  -->
+    <script>
+
+        $(function () {
+            //最新发布的已发布文章
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/index/latest',
+                success: function (backData) {
+                    // console.log(backData);
+                    if (backData.code == 200) {
+                        let resHtml = template('latest_temp', backData);
+                        $('.common_news').html(resHtml);
+                    }
+                }
+            })
+        })
+    </script>
+
+    <!-- 热点图模板 -->
+    <script id="hotpic_temp" type="text/html">
+        {{each data x}}
+        <!-- $index表示索引 -->
+        {{if $index == 0}}
+        <li class="first">
+            {{else}}
+        <li>
+            {{/if}}
+            <a href="./article.html?id={{x.id}}"><img src="{{x.cover}}" alt=""></a>
+            <p>{{x.title}}</p>
+        </li>
+        {{/each}}
+    </script>
+
+    <!-- 热点图 -->
+    <script>
+        $(function () {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/index/hotpic',
+                success: function (backData) {
+                    //console.log(backData);
+                    if (backData.code == 200) {
+                        var resHtml = template('hotpic_temp', backData);
+                        $('ul.focus_list').html(resHtml);
+                    }
+                }
+            });
+        })
+    </script>
+
+    <!-- 一周热门排行 -->
+    <script>
+        $(function () {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/index/rank',
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        //遍历数据
+                        //找到数据要渲染的标签,分别渲染上. 
+                        for (let i = 0; i < backData.data.length; i++) {
+                            $('.hotrank_list>li').eq(i).children('a').text(backData.data[i].title);
+                            $('.hotrank_list>li').eq(i).children('a').attr('href', './article.html?id=' + backData.data[i].id);
+                        }
+                    }
+                }
+            });
+        })
+    </script>
+
+    <!-- 最新评论 模板 -->
+    <script id="latestcomment_temp" type="text/html">
+        {{each data x}}
+        <li>
+                <!-- substr提取字符串 substr（开始的下标，多少个） -->
+            <span>{{x.author.substr(0,1)}}</span>
+            <b><em>{{x.author}}</em> {{x.date}}说:</b>
+            <strong>{{x.intro}}</strong>
+        </li>
+        {{/each}}
+    </script>
+
+    <!-- 最新评论 -->
+    <script>
+        $(function () {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/index/latest_comment',
+                success: function (backData) {
+                    let month = new Date().getMonth() + 1; //当前的月份
+                    backData.month = month;//添加到backData数据中
+                    // console.log(backData);
+                    let resHtml = template('latestcomment_temp', backData);
+                    $('.comment_list').html(resHtml);
+                }
+            });
+
+        })
+    </script>
+
+    <!-- 焦点关注 模板 -->
+    <script id="attention_temp" type="text/html">
+        {{each data x}}
+        <li><a href="./article.html?id={{x.id}}">{{x.intro}}</a></li>
+        {{/each}}
+    </script>
+
+    <!-- 焦点关注 -->
+    <script>
+        $(function () {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/index/attention',
+                success: function (backData) {
+                    //console.log(backData);
+                    if (backData.code == 200) {
+                        let resHtml = template('attention_temp', backData);
+                        $('.guanzhu_list').html(resHtml);
+                    }
+                }
+            })
+        })
+    </script>
+
+
 </body>
 
 </html>
