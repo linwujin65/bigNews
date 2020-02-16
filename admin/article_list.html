@@ -131,8 +131,8 @@
                     type: 'get',
                     url: BigNew.article_query,
                     data: {
-                        type: $('#selCategory').val().trim(), //获取文章类别
-                        state: $('#selStatus').val().trim(), //获取文章状态(草稿/已发布)
+                        type: $('#selCategory').val(), //获取文章类别
+                        state: $('#selStatus').val(), //获取文章状态(草稿/已发布)
                         page: myPage, //当前的页数
                         perpage: 3 //一页显示多少条
                     },
@@ -142,27 +142,24 @@
                             let resHtml = template('arti_list', backData);
                             $('tbody').html(resHtml);
                             //传入一个回到函数 额外做的事情
-                            if (callBack != null && backData.data.totalPage != 0) {
+                            if (callBack != null && backData.data.data.length != 0) {
                                 callBack(backData);
                                 $('#pagination').show();
                                 $('#pagination').next().hide();
                             }
-                            //判断当前页码的数据是否是最后一条
-                            // else if (backData.data.totalPage == myPage - 1 && backData.data.totalPage == 0) {
-                            //     myPage -= 1;
-                            //     // getComData(myPage, function () {
-                            //     //     //调用changeTotalPages 这个方法 根据新的总页数 重新生成分页结构. 
-                            //     //     $('#pagination').twbsPagination('changeTotalPages',
-                            //     //         backData.data.totalPage, myPage);
-                            //     // });
-                            //     $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
 
-                            // }
                             //判断当前页码是否还有数据
-                            else if (backData.data.totalPage == 0) {
-                                //没有数据
+                            else if (backData.data.data.length == 0 && myPage == 1) {
+                                //判断当前页码是否有数据 或者是否是第一页
                                 $('#pagination').hide();
                                 $('#pagination').next().show();
+                            }
+                            //判断当前页码的数据是否是最后一条
+                            else if (backData.data.totalPage == myPage-1 && backData.data.data.length == 0) {
+                                myPage -= 1;
+
+                                $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+
                             }
                         }
                     }
@@ -299,13 +296,16 @@
                                 //删除之后重新加载数据
                                 getData(myPage, function (backData) {
                                     //重新生成删除之后的数据结构
-                                    if(backData.data.totalPage == myPage || myPage == 1) {
-                                        $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
-                                    }
-                                    //判断当前页码的数据是否是最后一条
-                                    else{
-                                        $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage-1);
-                                    }
+
+                                    $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+
+                                    // if (backData.data.totalPage == myPage || myPage == 1) {
+                                    //     $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+                                    // }
+                                    // //判断当前页码的数据是否是最后一条
+                                    // else {
+                                    //     $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, myPage - 1);
+                                    // }
 
                                 });
                             }
@@ -314,7 +314,7 @@
                 }
             })
 
-            
+
         })
 
     </script>
