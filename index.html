@@ -370,7 +370,60 @@
         })
     </script>
 
+    <!-- 六:所有的文章类别模板 -->
+    <script id="category_temp" type="text/html">
+        <li class="up"></li>
+        {{each data x}}
+        <li><a href="./list.html?id={{x.id}}">{{x.name}}</a></li>
+        {{/each}}
+    </script>
 
+    <!-- 六2:所有的文章类别模板2 -->
+    <script id="category_temp2" type="text/html">
+        {{each data x}}
+        <li><a href="./list.html?id={{x.id}}">{{x.name}}</a></li>
+        {{/each}}
+    </script>
+    <!-- 文章类别 -->
+    <script>
+        $.ajax({
+            url: 'http://localhost:8080/api/v1/index/category',
+            success: function (backData) {
+                //console.log(backData);
+                if (backData.code == 200) {
+                    let resHtml = template('category_temp', backData);
+                    $('.level_two').html(resHtml);;
+                    //七.获取所有的文章类型2
+                    let resHtml2 = template('category_temp2', backData);
+                    $('.left_menu.fl').html(resHtml2);
+                }
+            }
+        });
+    </script>
+
+    <!-- 搜索文章 -->
+    <script>
+        $('.search_btn').on('click', function () {
+            let searchTxt = $('.search_txt').val().trim();
+            if (searchTxt == "") {
+                alert("搜索关键字为空!");
+                return;
+            } else if (isNaN(parseInt(searchTxt)) == false) {
+                alert('搜索关键字为文本内容');
+                return;
+            } else {
+                window.location.href = "./list.html?searchTxt=" + searchTxt;
+
+            }
+        });
+        //文本输入框设置键盘按下事件:回车
+        $('.search_txt').on('keydown', function (e) {
+            if (e.keyCode == 13) {
+                $('.search_btn').click();
+            }
+        })
+
+    </script>
 </body>
 
 </html>
